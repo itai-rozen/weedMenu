@@ -7,6 +7,7 @@ function App() {
   const [query, setQuery] = useState(null)
   const [data,setData] = useState([])
   const [items, setItems] = useState([])
+  const [sheet, setSheet] = useState(null)
 
   useEffect(() => {
     if (!data.length) 
@@ -27,13 +28,24 @@ function App() {
     setItems(filteredData)
   }
 
+  const handleFile = async (e) => {
+    const file = e.target.files[0];
+    const data = await file.arrayBuffer();
+    /* data is an ArrayBuffer */
+    const workbook = XLSX.read(data);
+    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+    const jsonData = XLSX.utils.sheet_to_json(worksheet);
+    console.log('jsonData: ', jsonData);
+    setSheet(jsonData)
+  }
   return (
     <>
       <Nav />
       <label htmlFor="search" title='Search' >Search</label>
       <input onChange={e => setQuery(e.target.value)} id="search" type="search" />
       <button onClick={() => {searchQuery(query)}}>Search</button>
-
+      <label htmlFor="file">import table</label>
+      <input type="file"  id="file" onChange={handleFile} />
       {
         items.length && <ItemList items={items} />
       }
